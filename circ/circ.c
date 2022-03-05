@@ -95,10 +95,12 @@ void join_channel(int sock, const char *channel)
     free(buffer);
 }
 
-void priv_msg(int sock, const char *nick, const char *message, char *output)
+const char *priv_msg(int sock, const char *nick, const char *message)
 {
     char *privmsg_command = "PRIVMSG %s :%s\r\n";
     char command[strlen("PRIVMSG  :\r\n") + strlen(nick) + strlen(message) + 1];
+    char output[SOCKET_BUFFER];
+    char *output_ptr = output;
 
     sprintf(command, privmsg_command, nick, message);
     printf("[PRIVMSG] : %s\n", command);
@@ -151,6 +153,7 @@ void priv_msg(int sock, const char *nick, const char *message, char *output)
         }
     }
     free(buffer);
+    return output_ptr;
 }
 
 void disconnect(int sock)

@@ -13,13 +13,12 @@
 #define NICK "Ximaz"
 #define CHALLENGE "!ep2"
 
-void solve(char* challenge, char* answer)
+const char *solve(const char *challenge)
 {
-    printf("%s\n", challenge);
-    answer[0] = 'N';
-    answer[1] = '\0';
+    printf("CHALLENGE : %s\n", challenge);
+    const char *answer = "ThisIsMyAnswer";
+    return answer;
 }
-
 
 int main()
 {
@@ -31,16 +30,16 @@ int main()
     authenticate(irc_socket, HOST, SERVER, NICK);
     join_channel(irc_socket, CHANNEL);
 
-    char challenge[SOCKET_BUFFER];
-    priv_msg(irc_socket, BOT, CHALLENGE, challenge);
-    printf("CHALLENGE : %s\n", challenge);
+    const char *challenge = priv_msg(irc_socket, BOT, CHALLENGE);
+    const char *solution = solve(challenge);
+    printf("SOLUTION : %s\n", solution);
 
-    char answer[4096] = CHALLENGE;
-    strcat(answer, " -rep NONE");
-    printf("ANSWER : %s\n", answer);
+    char answer[SOCKET_BUFFER] = { '\0' };
+    strcat(answer, CHALLENGE);
+    strcat(answer, " -rep ");
+    strcat(answer, solution);
 
-    char response[SOCKET_BUFFER];
-    priv_msg(irc_socket, BOT, answer, response);
+    const char *response = priv_msg(irc_socket, BOT, answer);
     printf("RESPONSE : %s\n", response);
 
     disconnect(irc_socket);

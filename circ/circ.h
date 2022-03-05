@@ -8,7 +8,7 @@ int new_irc(const char *host);
 void authenticate(int sock, const char *host, const char *server, const char *nick);
 void handle_ping(int sock);
 void join_channel(int sock, const char *channel);
-void priv_msg(int sock, const char *nick, const char *message, char *output);
+const char *priv_msg(int sock, const char *nick, const char *message);
 void disconnect(int sock);
 
 #endif
