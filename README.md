@@ -17,7 +17,7 @@ There is a snippet you can copy to try the module, which is also written in ``ma
 #define BOT "Candy"
 
 // Config
-#define NICK "Quatrecentquatre"
+#define NICK "Ximaz"
 #define CHALLENGE "!ep2"
 
 void solve(char* challenge, char* answer)
