@@ -1,0 +1,4 @@
+/**/*.o
+circ_client
+circ_server
+.vscode
