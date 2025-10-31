@@ -1,12 +1,12 @@
 CC			:=	gcc
-CPPFLAGS	:=	-I ../include/
-CFLAGS		:=	-Wall -Wextra -Werror -pedantic -ansi -fPIE 		 \
+CPPFLAGS	:=	-I ../include
+CFLAGS		:=	-Wall -Wextra -pedantic -ansi 		 		 \
 				-fno-delete-null-pointer-checks -fno-strict-overflow \
 				-fno-strict-aliasing -ftrivial-auto-var-init=zero    \
 				-Wformat -Wimplicit-fallthrough 					 \
 				-U_FORTIFY_SOURCE -D_GLIBCXX_ASSERTIONS 			 \
-				-fstack-protector-strong
-LIBS		:=	-L../shared/ -lcirc_shared
+				-fstack-protector-strong \
+				# -Werror
 
 ifeq ($(PLATFORM),x86_64)
 	CFLAGS	+=	-fcf-protection=full -Wl,-z,nodlopen -Wl,-z,noexecstack \
@@ -18,10 +18,12 @@ ifeq ($(PLATFORM),aarch64)
 	CFLAGS	+=	-mbranch-protection=standard
 endif
 
+AR			:=	ar
+ARFLAGS		:=	rcs
+
 SRCS			:=	$(shell find src -name '*.c')
 OBJS			:=	$(SRCS:.c=.o)
-NAME			:=	circ_client
-SHARED_LIB_PATH	:=	../shared/libcirc_shared.a
+NAME			:=	libcirc_shared.a
 
 VALGRIND_FLAGS	:=	-s							\
 					--leak-check=full			\
@@ -37,11 +39,8 @@ RM				:=	rm -rf
 all:	$(OBJS)
 	$(MAKE) $(NAME)
 
-$(SHARED_LIB_PATH):
-	$(MAKE) -C ../shared
-
-$(NAME):	$(SHARED_LIB_PATH) $(OBJS)
-	@$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -o $@ $(LIBS)
+$(NAME):	$(OBJS)
+	@$(AR) $(ARFLAGS) $(NAME) $(OBJS)
 
 clean:
 	@$(RM) $(OBJS)

@@ -6,6 +6,7 @@ CFLAGS		:=	-Wall -Wextra -Werror -pedantic -ansi -fPIE 		 \
 				-Wformat -Wimplicit-fallthrough 					 \
 				-U_FORTIFY_SOURCE -D_GLIBCXX_ASSERTIONS 			 \
 				-fstack-protector-strong
+LIBS		:=	-L../shared/ -lcirc_shared
 
 ifeq ($(PLATFORM),x86_64)
 	CFLAGS	+=	-fcf-protection=full -Wl,-z,nodlopen -Wl,-z,noexecstack \
@@ -20,6 +21,7 @@ endif
 SRCS			:=	$(shell find src -name '*.c')
 OBJS			:=	$(SRCS:.c=.o)
 NAME			:=	circ_server
+SHARED_LIB_PATH	:=	../shared/libcirc_shared.a
 
 VALGRIND_FLAGS	:=	-s							\
 					--leak-check=full			\
@@ -35,11 +37,16 @@ RM				:=	rm -rf
 all:	$(OBJS)
 	$(MAKE) $(NAME)
 
-$(NAME):	$(OBJS)
-	@$(CC) $(CFLAGS) $(CPPFLAGS) $(OBJS) -o $@
+$(SHARED_LIB_PATH):
+	$(MAKE) -C ../shared
+
+$(NAME):	$(SHARED_LIB_PATH) $(OBJS)
+	@$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -o $@ $(LIBS)
 
 clean:
 	@$(RM) $(OBJS)
 
 fclean:	clean
 	@$(RM) $(NAME)
+
+re:	fclean all

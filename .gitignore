@@ -2,3 +2,4 @@
 circ_client
 circ_server
 .vscode
+shared/libcirc_shared.a
