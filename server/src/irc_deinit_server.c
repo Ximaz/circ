@@ -9,6 +9,5 @@ int irc_deinit_server(irc_server_t *server)
         return -1;
     }
     server->sockfd = 0;
-
     return 0;
 }

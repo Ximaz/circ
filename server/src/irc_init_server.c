@@ -10,15 +10,17 @@ static int compute_sockaddr_in(struct sockaddr *address, socklen_t *address_len,
                                const char *hostname, in_port_t port)
 {
     struct sockaddr_in temp_address = {0};
+    struct in_addr generic_in_addr = {0};
 
-    if (1 != inet_pton(AF_INET, hostname, &temp_address.sin_addr.s_addr)) {
-        perror("inet_pton");
+    if (1 != inet_aton(hostname, &generic_in_addr)) {
+        perror("inet_aton");
         return -1;
     }
     *address_len = sizeof(struct sockaddr_in);
     temp_address.sin_family = AF_INET;
     temp_address.sin_port = port;
     memcpy(address, &temp_address, *address_len);
+    memcpy(&temp_address.sin_addr, &generic_in_addr, sizeof(struct in_addr));
     return 0;
 }
 
@@ -27,25 +29,18 @@ static int compute_sockaddr_in6(struct sockaddr *address,
                                 in_port_t port)
 {
     struct sockaddr_in6 temp_address = {0};
+    struct in_addr generic_in_addr = {0};
 
-    if (1 != inet_pton(AF_INET6, hostname, &temp_address.sin6_addr.__u6_addr)) {
-        perror("inet_pton");
+    if (1 != inet_aton(hostname, &generic_in_addr)) {
+        perror("inet_aton");
         return -1;
     }
     *address_len = sizeof(struct sockaddr_in6);
     temp_address.sin6_family = AF_INET6;
     temp_address.sin6_port = port;
     memcpy(address, &temp_address, *address_len);
+    memcpy(&temp_address.sin6_addr, &generic_in_addr, sizeof(struct in_addr));
     return 0;
-}
-
-static const char *hostname_resolver(const char *hostname)
-{
-    if (0 == strcmp("localhost", hostname)) {
-        return "127.0.0.1";
-    }
-    /* NOTE: it could be wise to implement an actual DNS resolve. */
-    return hostname;
 }
 
 static int bind_socket(int sockfd, const char *hostname, in_port_t port,
@@ -78,14 +73,11 @@ static int bind_socket(int sockfd, const char *hostname, in_port_t port,
 int irc_init_server(irc_server_t *server, const char *hostname, in_port_t port,
                     sa_family_t socket_addr_family)
 {
-    const char *resolved_hostname = hostname_resolver(hostname);
-
     server->sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
     if (0 == server->sockfd) {
         return -1;
     }
-    if (0 != bind_socket(server->sockfd, resolved_hostname, port,
-                         socket_addr_family)) {
+    if (0 != bind_socket(server->sockfd, hostname, port, socket_addr_family)) {
         server->sockfd = 0;
         return -1;
     }
