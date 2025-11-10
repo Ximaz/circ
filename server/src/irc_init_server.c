@@ -18,7 +18,7 @@ static int compute_sockaddr_in(struct sockaddr *address, socklen_t *address_len,
     }
     *address_len = sizeof(struct sockaddr_in);
     temp_address.sin_family = AF_INET;
-    temp_address.sin_port = port;
+    temp_address.sin_port = htons(port);
     memcpy(address, &temp_address, *address_len);
     memcpy(&temp_address.sin_addr, &generic_in_addr, sizeof(struct in_addr));
     return 0;
@@ -37,7 +37,7 @@ static int compute_sockaddr_in6(struct sockaddr *address,
     }
     *address_len = sizeof(struct sockaddr_in6);
     temp_address.sin6_family = AF_INET6;
-    temp_address.sin6_port = port;
+    temp_address.sin6_port = htons(port);
     memcpy(address, &temp_address, *address_len);
     memcpy(&temp_address.sin6_addr, &generic_in_addr, sizeof(struct in_addr));
     return 0;
@@ -81,5 +81,7 @@ int irc_init_server(irc_server_t *server, const char *hostname, in_port_t port,
         server->sockfd = 0;
         return -1;
     }
+    server->running = 1;
+    memset(&(server->clientfds), 0, sizeof(int) * IRC_SERVER_MAX_CLIENTS);
     return 0;
 }
